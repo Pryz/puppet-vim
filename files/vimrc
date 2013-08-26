@@ -1,0 +1,57 @@
+" Pathogen autoload for bundle
+call pathogen#infect()
+syntax on
+filetype plugin indent on
+
+" no backup files
+set backupcopy=no
+set nobackup
+
+" indentation
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set smarttab
+set smartindent
+" expandtab
+set expandtab
+set et
+
+set textwidth=80
+
+" highlight search
+set hlsearch
+
+" Asciidoc
+" " setl ft will override any previous setfiletype
+autocmd BufNewFile,BufRead *.txt setl ft=asciidoc
+command Ad setfiletype asciidoc
+
+" " Ruby
+autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
+autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
+autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
+
+" " Python
+autocmd FileType python set omnifunc=pythoncomplete#Complete
+autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
+autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+
+" Puppet
+autocmd BufNewFile,BufRead *.pp setl ft=puppet
+
+" Tabularize improvment
+inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
+
+function! s:align()
+  let p = '^\s*|\s.*\s|\s*$'
+  "if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+  if exists(':Tabularize') && getline('.') =~# '^*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+    let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
+    let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
+    Tabularize/|/l1
+    normal! 0
+    call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
+  endif
+endfunction
